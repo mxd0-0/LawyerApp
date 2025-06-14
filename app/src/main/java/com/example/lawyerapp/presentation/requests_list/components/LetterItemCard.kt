@@ -50,7 +50,6 @@ fun LetterItemCard(
         },
         positionalThreshold = { it * 0.25f }
     )
-
     SwipeToDismissBox(
         state = dismissState,
         enableDismissFromStartToEnd = true, // Enables delete

@@ -70,8 +70,10 @@ fun RequestDetailScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             InfoCard(label = "Email", value = letter.email)
+
             Spacer(modifier = Modifier.height(12.dp))
             InfoCard(label = "Name", value = letter.fullName)
+
             Spacer(modifier = Modifier.height(12.dp))
 
             // This is the repeated section from your UI
@@ -79,7 +81,9 @@ fun RequestDetailScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            Text("Consult Request", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+            Text(
+                "Consult Request",
+                style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
 
             Spacer(modifier = Modifier.height(16.dp))
 

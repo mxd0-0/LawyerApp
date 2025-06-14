@@ -2,6 +2,7 @@ package com.example.lawyerapp.presentation.requests_list
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -84,14 +85,24 @@ fun SearchBar() {
 
 @Composable
 fun FilterChips() {
-    val filters = listOf("All", "Consult", "Free Consults", "File Reques")
+    // I've added more items to demonstrate the scrolling
+    val filters = listOf(
+        "All",
+        "Consult",
+        "Free Consults",
+        "File Request",
+        "Archived",
+        "Pending Review"
+    )
     var selectedFilter by remember { mutableStateOf("Consult") }
 
-    Row(
+    // Use LazyRow for horizontal scrolling
+    LazyRow(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+        horizontalArrangement = Arrangement.spacedBy(8.dp) // This adds space between each chip
     ) {
-        filters.forEach { filter ->
+        // Use the 'items' builder for LazyRow
+        items(items = filters) { filter ->
             val isSelected = filter == selectedFilter
             FilterChip(
                 selected = isSelected,
@@ -102,12 +113,11 @@ fun FilterChips() {
                     selectedLabelColor = Color.White,
                     labelColor = LightGreyText
                 ),
-                // --- FIX IS HERE ---
                 border = FilterChipDefaults.filterChipBorder(
-                    enabled = true, // The chip is always enabled
-                    selected = isSelected, // Pass the selection state
-                    borderColor = Color.LightGray, // Color when not selected
-                    selectedBorderColor = AppOrange // Color when selected
+                    enabled = true,
+                    selected = isSelected,
+                    borderColor = Color.LightGray,
+                    selectedBorderColor = AppOrange
                 )
             )
         }
