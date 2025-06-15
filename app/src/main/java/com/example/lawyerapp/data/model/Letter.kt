@@ -19,5 +19,6 @@ data class Letter(
     val title: String = "",
     val userId: String = "",
     val email: String = "" ,
-    val lawyerAnswer: String = ""
+    val lawyerAnswer: String = "",
+    val lawyerId: String = ""
 ) : Parcelable

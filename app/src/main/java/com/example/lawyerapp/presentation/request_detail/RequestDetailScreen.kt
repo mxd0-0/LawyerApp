@@ -95,6 +95,10 @@ fun RequestDetailScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
+            if (letter.lawyerId.isNotEmpty()) {
+                InfoCard(label = "Answered by Lawyer ID", value = letter.lawyerId)
+            }
+
             Text(
                 "Lawyer's Answer",
                 style = MaterialTheme.typography.titleLarge,

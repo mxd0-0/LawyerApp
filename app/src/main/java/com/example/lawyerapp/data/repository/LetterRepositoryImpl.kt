@@ -9,14 +9,17 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import android.util.Log
+import com.google.firebase.auth.FirebaseAuth
+import javax.inject.Inject
 
 
 
-class LetterRepositoryImpl : LetterRepository {
+class LetterRepositoryImpl @Inject constructor(
+    private val auth: FirebaseAuth
+) : LetterRepository {
 
     private val firestore = FirebaseFirestore.getInstance()
     private val lettersCollection = firestore.collection("letters")
-
     // --- getLetters is now WRAPPED in the callbackFlow block ---
     override fun getLetters(): Flow<List<Letter>> = callbackFlow {
         Log.d("LawAppDebug", "Repository: Trying to attach snapshot listener...")
@@ -57,8 +60,16 @@ class LetterRepositoryImpl : LetterRepository {
 
     // --- ONLY ONE updateLetter FUNCTION ---
     override suspend fun updateLetter(letter: Letter) {
-        lettersCollection.document(letter.idLetter).set(letter).await()
+        // Get the current lawyer's ID
+        val currentLawyerId = auth.currentUser?.uid ?: ""
+
+        // Create a new copy of the letter with the lawyer's ID included
+        val letterWithLawyerId = letter.copy(lawyerId = currentLawyerId)
+
+        // Save the updated letter object to Firestore
+        lettersCollection.document(letterWithLawyerId.idLetter).set(letterWithLawyerId).await()
     }
+
 
     override suspend fun deleteLetter(letterId: String) {
         try {
