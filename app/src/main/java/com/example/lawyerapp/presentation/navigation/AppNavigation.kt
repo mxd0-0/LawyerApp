@@ -3,9 +3,10 @@ package com.example.lawyerapp.presentation.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.lawyerapp.domain.model.Letter
+import androidx.navigation.navArgument
 import com.example.lawyerapp.presentation.request_detail.RequestDetailScreen
 import com.example.lawyerapp.presentation.requests_list.RequestsListScreen
 
@@ -13,25 +14,20 @@ import com.example.lawyerapp.presentation.requests_list.RequestsListScreen
 @Composable
 fun AppNavigation(navController: NavHostController) {
     NavHost(navController = navController, startDestination = Screen.RequestsList.route) {
-        composable(
-            route = Screen.RequestsList.route
-        ) {
+        composable(route = Screen.RequestsList.route) {
             RequestsListScreen(
                 onNavigateToDetail = { letter ->
-                    // Pass the letter object to the next screen
-                    navController.currentBackStackEntry?.savedStateHandle?.set("letter", letter)
-                    navController.navigate(Screen.RequestDetail.route)
+                    // Navigate with the new route creator
+                    navController.navigate(Screen.RequestDetail.createRoute(letter.idLetter))
                 }
             )
         }
-
         composable(
-            route = Screen.RequestDetail.route
+            route = Screen.RequestDetail.route,
+            arguments = listOf(navArgument("letterId") { type = NavType.StringType })
         ) {
-            // Retrieve the letter object
-            val letter = navController.previousBackStackEntry?.savedStateHandle?.get<Letter>("letter")
+            // The detail screen now fetches its own data
             RequestDetailScreen(
-                letter = letter,
                 onNavigateBack = { navController.popBackStack() }
             )
         }

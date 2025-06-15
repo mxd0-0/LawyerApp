@@ -15,8 +15,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.lawyerapp.domain.model.Letter
+import com.example.lawyerapp.data.model.Letter
 import com.example.lawyerapp.presentation.requests_list.components.LetterItemCard
 import com.example.lawyerapp.ui.theme.AppOrange
 import com.example.lawyerapp.ui.theme.LawAppTheme
@@ -27,7 +28,7 @@ import com.example.lawyerapp.ui.theme.LightGreyText
 @Composable
 fun RequestsListScreen(
     onNavigateToDetail: (Letter) -> Unit,
-    viewModel: RequestsListViewModel = viewModel(),
+    viewModel: RequestsListViewModel = hiltViewModel() // Use hiltViewModel here
 ) {
     val state by viewModel.state.collectAsState()
 

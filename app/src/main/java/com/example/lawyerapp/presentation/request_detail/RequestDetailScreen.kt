@@ -1,30 +1,55 @@
 package com.example.lawyerapp.presentation.request_detail
 
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material3.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.lawyerapp.domain.model.Letter
-import com.example.lawyerapp.ui.theme.LawAppTheme
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.lawyerapp.ui.theme.LightGreyText
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RequestDetailScreen(
-    letter: Letter?,
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    viewModel: RequestDetailViewModel = hiltViewModel(),
 ) {
+    // --- THIS IS THE MAIN FIX ---
+    // Use the 'by' delegate to automatically unwrap the state's value.
+    val state by viewModel.state.collectAsState()
+    val letter = state.letter
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -40,10 +65,17 @@ fun RequestDetailScreen(
             )
         }
     ) { paddingValues ->
+        // Now you can access properties directly on 'state'
+        if (state.isLoading) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
+            return@Scaffold
+        }
+
         if (letter == null) {
-            // Handle case where letter is not passed correctly
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = androidx.compose.ui.Alignment.Center) {
-                Text("Error: Letter not found.")
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Text("Letter not found.")
             }
             return@Scaffold
         }
@@ -55,55 +87,48 @@ fun RequestDetailScreen(
                 .padding(16.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    "Consult Request",
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold
-                )
-                Icon(Icons.Default.KeyboardArrowDown, contentDescription = "Expand")
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
             InfoCard(label = "Email", value = letter.email)
-
             Spacer(modifier = Modifier.height(12.dp))
             InfoCard(label = "Name", value = letter.fullName)
-
             Spacer(modifier = Modifier.height(12.dp))
-
-            // This is the repeated section from your UI
-            InfoCard(label = "Email", value = "${letter.email}\ndhbdhbdhbdh\ndhdbdhbdhbdh\ndhbdhbdhbdhbd\nhbdhdbddddddddddddbfkjfn")
+            InfoCard(label = "Description", value = letter.description)
 
             Spacer(modifier = Modifier.height(32.dp))
 
             Text(
-                "Consult Request",
-                style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-
+                "Lawyer's Answer",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold
+            )
             Spacer(modifier = Modifier.height(16.dp))
 
-            // And the second repeated section
-            InfoCard(label = "Email", value = "${letter.email}\ndhbdhbdhbdh\ndhdbdhbdhbdh\ndhbdhbdhbdhbd\nhbdhdbddddddddddddbfkjfn")
+            OutlinedTextField(
+                value = letter.lawyerAnswer,
+                onValueChange = { viewModel.updateLawyerAnswer(it) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(150.dp),
+                label = { Text("Type your response here...") }
+            )
 
-
-            Spacer(modifier = Modifier.weight(1f)) // Pushes button to the bottom
+            Spacer(modifier = Modifier.weight(1f))
 
             Button(
-                onClick = { onNavigateBack() },
+                onClick = {
+                    viewModel.saveChanges()
+                    onNavigateBack()
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp),
-                shape = MaterialTheme.shapes.medium,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.secondary
-                )
+                // Accessing properties directly on 'state' now works
+                enabled = !state.isSaving
             ) {
-                Text("Done", fontSize = 16.sp)
+                if (state.isSaving) {
+                    CircularProgressIndicator(modifier = Modifier.size(24.dp), color = Color.White)
+                } else {
+                    Text("Save and Close", fontSize = 16.sp)
+                }
             }
         }
     }
@@ -126,14 +151,3 @@ fun InfoCard(label: String, value: String) {
 }
 
 
-@Preview(showBackground = true, widthDp = 360, heightDp = 800)
-@Composable
-fun RequestDetailScreenPreview() {
-    LawAppTheme {
-        val previewLetter = Letter(
-            email = "Mohamed@gmailfbkfn",
-            fullName = "USe4i4i4i4"
-        )
-        RequestDetailScreen(letter = previewLetter, onNavigateBack = {})
-    }
-}

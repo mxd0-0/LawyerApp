@@ -19,7 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.lawyerapp.domain.model.Letter
+import com.example.lawyerapp.data.model.Letter
 import com.example.lawyerapp.ui.theme.SwipeGreen
 import com.example.lawyerapp.ui.theme.SwipeRed
 

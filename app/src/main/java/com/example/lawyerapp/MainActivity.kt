@@ -7,7 +7,9 @@ import androidx.activity.enableEdgeToEdge
 import androidx.navigation.compose.rememberNavController
 import com.example.lawyerapp.presentation.navigation.AppNavigation
 import com.example.lawyerapp.ui.theme.LawAppTheme
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint // <-- THIS IS THE FIX
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

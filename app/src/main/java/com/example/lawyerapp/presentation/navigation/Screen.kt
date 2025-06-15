@@ -4,18 +4,10 @@ package com.example.lawyerapp.presentation.navigation
 import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
-import com.example.lawyerapp.domain.model.Letter
 
-sealed class Screen(
-    val route: String,
-    val arguments: List<NamedNavArgument> = emptyList()
-) {
+sealed class Screen(val route: String) {
     object RequestsList : Screen("requests_list")
-
-    object RequestDetail : Screen(
-        route = "request_detail",
-        arguments = listOf(navArgument("letter") {
-            type = NavType.ParcelableType(Letter::class.java)
-        })
-    )
+    object RequestDetail : Screen("request_detail/{letterId}") {
+        fun createRoute(letterId: String) = "request_detail/$letterId"
+    }
 }

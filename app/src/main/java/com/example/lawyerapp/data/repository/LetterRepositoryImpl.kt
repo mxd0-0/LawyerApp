@@ -1,7 +1,8 @@
 package com.example.lawyerapp.data.repository
 
 
-import com.example.lawyerapp.domain.model.Letter
+import android.system.Os.close
+import com.example.lawyerapp.data.model.Letter
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -13,34 +14,26 @@ import android.util.Log
 
 class LetterRepositoryImpl : LetterRepository {
 
-    // This will now work because you added the firebase-firestore library
     private val firestore = FirebaseFirestore.getInstance()
-
-    // This refers to your "letters" collection from the screenshot
     private val lettersCollection = firestore.collection("letters")
 
-    /**
-     *  Listens for real-time updates from your "letters" collection in Firestore.
-     */
+    // --- getLetters is now WRAPPED in the callbackFlow block ---
     override fun getLetters(): Flow<List<Letter>> = callbackFlow {
         Log.d("LawAppDebug", "Repository: Trying to attach snapshot listener...")
         val listener = lettersCollection.addSnapshotListener { snapshot, error ->
-            // Check for errors from Firebase
             if (error != null) {
                 Log.e("LawAppDebug", "Repository: Firebase listener error!", error)
                 close(error)
                 return@addSnapshotListener
             }
 
-            // Check if the snapshot has data
-            if (snapshot != null && !snapshot.isEmpty) {
+            if (snapshot != null) {
                 val letters = snapshot.toObjects(Letter::class.java)
                 Log.d("LawAppDebug", "Repository: Success! Fetched ${letters.size} documents.")
                 trySend(letters).isSuccess
             } else {
-                // This will tell us if Firebase connected but the collection was empty
                 Log.d("LawAppDebug", "Repository: Firebase returned a null or empty snapshot.")
-                trySend(emptyList()).isSuccess // Send an empty list to the UI
+                trySend(emptyList()).isSuccess
             }
         }
 
@@ -50,15 +43,27 @@ class LetterRepositoryImpl : LetterRepository {
         }
     }
 
-    /**
-     *  Deletes a document from the "letters" collection using its ID.
-     */
+    override fun getLetterById(letterId: String): Flow<Letter?> = callbackFlow {
+        val docRef = lettersCollection.document(letterId)
+        val listener = docRef.addSnapshotListener { snapshot, error ->
+            if (error != null) {
+                close(error)
+                return@addSnapshotListener
+            }
+            trySend(snapshot?.toObject(Letter::class.java)).isSuccess
+        }
+        awaitClose { listener.remove() }
+    }
+
+    // --- ONLY ONE updateLetter FUNCTION ---
+    override suspend fun updateLetter(letter: Letter) {
+        lettersCollection.document(letter.idLetter).set(letter).await()
+    }
+
     override suspend fun deleteLetter(letterId: String) {
         try {
-            // This is the correct way to delete a document in Firestore
             lettersCollection.document(letterId).delete().await()
         } catch (e: Exception) {
-            // In case of an error (e.g., no internet), it will be printed
             e.printStackTrace()
         }
     }

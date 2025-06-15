@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     id("kotlin-kapt") // For Hilt/Dagger if you add it later
     id("kotlin-parcelize")
+    alias(libs.plugins.hilt.gradle)
     alias(libs.plugins.google.gms.google.services) // For passing data objects
 }
 
@@ -71,4 +72,9 @@ dependencies {
     implementation(libs.coroutines.play.services)
 
     testImplementation(libs.junit)
+
+    // Hilt
+    implementation(libs.hilt.android)
+    kapt(libs.hilt.compiler)
+    implementation(libs.androidx.hilt.navigation.compose)
 }
